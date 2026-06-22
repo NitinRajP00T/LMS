@@ -202,7 +202,7 @@
                                         style="width:100%;padding:13px;background:#10b981;color:#fff;
                                                border:none;border-radius:10px;font-weight:700;font-size:.95rem;
                                                cursor:pointer;transition:background .2s;"
-                                        onmouseover="this.style.background='#059669'"
+                                        onmouseover="this.style.background='#059669'"0
                                         onmouseout="this.style.background='#10b981'">
                                     🎓 Enroll for Free
                                 </button>
