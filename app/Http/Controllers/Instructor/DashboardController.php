@@ -31,6 +31,6 @@ class DashboardController extends Controller
             'average_rating' => 4.8, // Should be calculated from reviews
         ];
         
-        return view('instructor.dashboard', compact('courses', 'stats'));
+        return view('instructor.instructor-dashboard', compact('courses', 'stats'));
     }
 }

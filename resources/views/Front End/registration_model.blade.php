@@ -120,11 +120,28 @@
 <div class="w-full max-w-[480px] bg-surface-container-lowest rounded-xl shadow-[0px_10px_30px_rgba(15,23,42,0.1)] overflow-hidden animate-in fade-in zoom-in duration-300">
 <!-- Header / Logo Section -->
 <div class="px-stack-md pt-stack-lg pb-stack-sm flex flex-col items-center text-center">
-<div class="mb-stack-sm">
-<span class="font-headline-md text-headline-md font-bold text-primary">EduMarket</span>
-</div>
-<h1 class="font-headline-sm text-headline-sm text-on-surface mb-2">Create your account</h1>
-<p class="font-body-md text-body-md text-on-surface-variant">Empower your professional journey with expert-led courses.</p>
+    <div class="mb-stack-sm">
+        <span class="font-headline-md text-headline-md font-bold text-primary">EduMarket</span>
+    </div>
+
+    <!-- Role Switcher Tabs -->
+    <div class="flex items-center gap-2 p-1 bg-surface-container-high rounded-xl mb-4 w-full border border-outline-variant/40">
+        <button type="button" id="reg-tab-student"
+            onclick="switchRegRole('student')"
+            class="reg-role-tab flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-label-md text-label-md transition-all duration-200 active-reg-tab">
+            <span class="material-symbols-outlined text-[18px]">school</span>
+            Learn (Student)
+        </button>
+        <button type="button" id="reg-tab-instructor"
+            onclick="switchRegRole('instructor')"
+            class="reg-role-tab flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-label-md text-label-md transition-all duration-200 inactive-reg-tab">
+            <span class="material-symbols-outlined text-[18px]">person_book</span>
+            Teach (Instructor)
+        </button>
+    </div>
+
+    <h1 class="font-headline-sm text-headline-sm text-on-surface mb-2" id="reg-heading">Create Student Account</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant" id="reg-subheading">Empower your professional journey with expert-led courses.</p>
 </div>
 <div class="px-stack-md pb-stack-lg">
 <!-- Social Sign Up -->
@@ -153,21 +170,8 @@
 <!-- Registration Form -->
 <form class="space-y-4" id="registrationForm" method="POST" action="{{ route('register') }}">
     @csrf
-    
-    <!-- Role Selector -->
-    <div class="space-y-1 mb-4">
-        <label class="block font-label-md text-label-md text-on-surface-variant">I want to:</label>
-        <div class="flex gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="role" value="student" class="text-primary" checked>
-                <span>Learn (Student)</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-                <input type="radio" name="role" value="instructor" class="text-primary">
-                <span>Teach (Instructor)</span>
-            </label>
-        </div>
-    </div>
+    <!-- Hidden Role Field -->
+    <input type="hidden" name="role" id="reg_role_input" value="student">
 <!-- Full Name -->
 <div class="space-y-1">
 <label class="block font-label-md text-label-md text-on-surface-variant" for="fullName">Full Name</label>
@@ -230,7 +234,52 @@
 </div>
 </div>
 <!-- Micro-interactions & Logic -->
+<style>
+    .active-reg-tab {
+        background: #004ac6;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,74,198,0.25);
+    }
+    .inactive-reg-tab {
+        background: transparent;
+        color: #434655;
+    }
+    .inactive-reg-tab:hover {
+        background: rgba(0,74,198,0.06);
+    }
+</style>
 <script>
+        // ── Role Tab Switcher ──
+        const regRoleData = {
+            student: {
+                heading: 'Create Student Account',
+                subheading: 'Empower your professional journey with expert-led courses.'
+            },
+            instructor: {
+                heading: 'Create Instructor Account',
+                subheading: 'Share your expertise and build a thriving teaching business.'
+            }
+        };
+
+        function switchRegRole(role) {
+            document.querySelectorAll('.reg-role-tab').forEach(tab => {
+                tab.classList.remove('active-reg-tab');
+                tab.classList.add('inactive-reg-tab');
+            });
+            document.getElementById('reg-tab-' + role).classList.remove('inactive-reg-tab');
+            document.getElementById('reg-tab-' + role).classList.add('active-reg-tab');
+
+            document.getElementById('reg-heading').innerText = regRoleData[role].heading;
+            document.getElementById('reg-subheading').innerText = regRoleData[role].subheading;
+            document.getElementById('reg_role_input').value = role;
+        }
+
+        // Init: read ?role= from URL
+        const regUrlParams = new URLSearchParams(window.location.search);
+        const regDefaultRole = regUrlParams.get('role') === 'instructor' ? 'instructor' : 'student';
+        switchRegRole(regDefaultRole);
+
+        // ── Password Visibility Toggle ──
         function togglePasswordVisibility() {
             const passInput = document.getElementById('password');
             const icon = document.getElementById('passIcon');
@@ -278,11 +327,5 @@
             if (strength === 1) strengthText.className = 'font-label-sm text-label-sm text-error';
             else if (strength > 1) strengthText.className = 'font-label-sm text-label-sm text-on-surface-variant';
         });
-
-        // document.getElementById('registrationForm').addEventListener('submit', (e) => {
-        //     // e.preventDefault();
-        //     // Implement registration logic
-        //     // alert('Form submitted successfully!');
-        // });
     </script>
 </body></html>

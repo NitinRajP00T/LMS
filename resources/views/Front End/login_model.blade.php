@@ -127,16 +127,34 @@
 <main class="relative z-10 w-full max-w-[480px] bg-surface-container-lowest rounded-xl soft-lift overflow-hidden border border-outline-variant/30">
 <!-- Top Section: Branding -->
 <div class="px-8 pt-10 pb-6 text-center">
-<div class="inline-flex items-center justify-center mb-6">
-<span class="font-headline-md text-headline-md font-bold text-primary">EduMarket</span>
-</div>
-<h1 class="font-headline-sm text-headline-sm text-on-surface mb-2">Welcome Back</h1>
-<p class="font-body-md text-body-md text-on-surface-variant">Access your professional learning path</p>
+    <div class="inline-flex items-center justify-center mb-6">
+        <span class="font-headline-md text-headline-md font-bold text-primary">EduMarket</span>
+    </div>
+
+    <!-- Role Switcher Tabs -->
+    <div class="flex items-center gap-2 p-1 bg-surface-container-low rounded-xl mb-6 border border-outline-variant/40">
+        <button type="button" id="tab-student"
+            onclick="switchRole('student')"
+            class="role-tab flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-label-md text-label-md transition-all duration-200 active-tab">
+            <span class="material-symbols-outlined text-[18px]">school</span>
+            Student
+        </button>
+        <button type="button" id="tab-instructor"
+            onclick="switchRole('instructor')"
+            class="role-tab flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-label-md text-label-md transition-all duration-200 inactive-tab">
+            <span class="material-symbols-outlined text-[18px]">person_book</span>
+            Instructor
+        </button>
+    </div>
+
+    <h1 class="font-headline-sm text-headline-sm text-on-surface mb-2" id="login-heading">Welcome Back, Student!</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant" id="login-subheading">Access your professional learning path</p>
 </div>
 <!-- Login Form Content -->
 <div class="px-8 pb-10">
 <form class="space-y-stack-md" id="loginForm" method="POST" action="{{ route('login') }}">
     @csrf
+    <input type="hidden" name="login_role" id="login_role_input" value="student">
 <!-- Email Field -->
 <div class="space-y-2">
 <label class="font-label-md text-label-md text-on-surface-variant" for="email">Email address</label>
@@ -191,39 +209,88 @@
 </div>
 <!-- Footer -->
 <div class="px-8 py-6 bg-surface-container-low border-t border-outline-variant/30 text-center">
-<p class="font-body-md text-body-md text-on-surface-variant">
-                Don't have an account? 
-                <a class="text-primary font-bold hover:underline" href="{{ route('register') }}">Sign Up</a>
-</p>
+    <p class="font-body-md text-body-md text-on-surface-variant">
+        Don't have an account?
+        <a class="text-primary font-bold hover:underline" href="#" id="signup-link">Sign Up</a>
+    </p>
 </div>
 </main>
 <!-- Background Illustration (Atmospheric) -->
 <div class="fixed bottom-0 right-0 p-10 opacity-10 pointer-events-none hidden lg:block">
-<span class="material-symbols-outlined text-[400px] text-primary">school</span>
+    <span class="material-symbols-outlined text-[400px] text-primary" id="bg-icon">school</span>
 </div>
+<style>
+    .active-tab {
+        background: #004ac6;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0,74,198,0.25);
+    }
+    .inactive-tab {
+        background: transparent;
+        color: #434655;
+    }
+    .inactive-tab:hover {
+        background: rgba(0,74,198,0.06);
+    }
+</style>
 <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById('password');
-            const passwordIcon = document.getElementById('passwordIcon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                passwordIcon.innerText = 'visibility_off';
-            } else {
-                passwordInput.type = 'password';
-                passwordIcon.innerText = 'visibility';
-            }
+    const roleData = {
+        student: {
+            heading: 'Welcome Back, Student!',
+            subheading: 'Access your professional learning path',
+            signupUrl: '{{ route("register") }}?role=student',
+            bgIcon: 'school'
+        },
+        instructor: {
+            heading: 'Welcome Back, Instructor!',
+            subheading: 'Manage your courses and inspire learners',
+            signupUrl: '{{ route("register") }}?role=instructor',
+            bgIcon: 'person_book'
         }
+    };
 
-        // Add subtle interaction effect to form fields
-        const inputs = document.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.classList.add('scale-[1.01]');
-                input.parentElement.classList.add('transition-transform');
-            });
-            input.addEventListener('blur', () => {
-                input.parentElement.classList.remove('scale-[1.01]');
-            });
+    function switchRole(role) {
+        // Update tabs
+        document.querySelectorAll('.role-tab').forEach(tab => {
+            tab.classList.remove('active-tab');
+            tab.classList.add('inactive-tab');
         });
-    </script>
+        document.getElementById('tab-' + role).classList.remove('inactive-tab');
+        document.getElementById('tab-' + role).classList.add('active-tab');
+
+        // Update content
+        document.getElementById('login-heading').innerText = roleData[role].heading;
+        document.getElementById('login-subheading').innerText = roleData[role].subheading;
+        document.getElementById('signup-link').href = roleData[role].signupUrl;
+        document.getElementById('login_role_input').value = role;
+        document.getElementById('bg-icon').innerText = roleData[role].bgIcon;
+    }
+
+    // Init on load — check URL param
+    const urlParams = new URLSearchParams(window.location.search);
+    const defaultRole = urlParams.get('role') === 'instructor' ? 'instructor' : 'student';
+    switchRole(defaultRole);
+
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('passwordIcon');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordIcon.innerText = 'visibility_off';
+        } else {
+            passwordInput.type = 'password';
+            passwordIcon.innerText = 'visibility';
+        }
+    }
+
+    // Subtle field focus animation
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('focus', () => {
+            input.parentElement.classList.add('scale-[1.01]', 'transition-transform');
+        });
+        input.addEventListener('blur', () => {
+            input.parentElement.classList.remove('scale-[1.01]');
+        });
+    });
+</script>
 </body></html>
